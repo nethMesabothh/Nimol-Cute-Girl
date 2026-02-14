@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POS System ERD - Interactive Database Schema</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --info-gradient: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+            --core-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --transaction-color: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            --product-color: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
+            --system-color: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+            --expiry-color: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%);
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.12);
+            --shadow-lg: 0 8px 32px rgba(0,0,0,0.16);
+            --shadow-xl: 0 16px 48px rgba(0,0,0,0.24);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background-attachment: fixed;
+            padding: 20px;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1920px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: var(--shadow-xl);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 50px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 20px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+            font-weight: 400;
+            position: relative;
+            z-index: 1;
+        }
+
+        .controls {
+            padding: 25px 40px;
+            background: linear-gradient(to bottom, #f8f9fa, #ffffff);
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .controls label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.95em;
+        }
+
+        .controls select {
+            padding: 10px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 14px;
+            cursor: pointer;
+            background: white;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            min-width: 180px;
+        }
+
+        .controls select:hover {
+            border-color: #667eea;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .controls select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .controls button {
+            padding: 10px 24px;
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .controls button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .controls button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .controls button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .controls button:active {
+            transform: translateY(0);
+        }
+
+        .legend {
+            padding: 30px 40px;
+            background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .legend h4 {
+            margin-bottom: 20px;
+            color: #212529;
+            font-size: 1.1em;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .legend-item:hover {
+            transform: translateX(5px);
+            box-shadow: var(--shadow-sm);
+            border-color: #667eea;
+        }
+
+        .legend-box {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: 2px solid rgba(0,0,0,0.1);
+            box-shadow: var(--shadow-sm);
+            flex-shrink: 0;
+        }
+
+        .legend-arrow {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #667eea;
+            font-family: 'Courier New', monospace;
+            min-width: 80px;
+        }
+
+        .diagram-wrapper {
+            position: relative;
+            padding: 50px 40px;
+            overflow: visible;
+            background: #fafbfc;
+        }
+
+        .canvas-container {
+            position: relative;
+            min-height: 2000px;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .entities-layer {
+            position: relative;
+            z-index: 2;
+        }
+
+        .entity-group {
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .group-title {
+            font-size: 1.8em;
+            color: #212529;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 4px solid;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .entities {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            position: relative;
+        }
+
+        .entity {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .entity::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .entity:hover::before {
+            transform: scaleX(1);
+        }
+
+        .entity:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: var(--shadow-xl);
+            border-color: #667eea;
+        }
+
+        .entity.highlighted {
+            border-color: #ffc107;
+            border-width: 3px;
+            box-shadow: 0 0 0 4px rgba(255, 193, 7, 0.2), var(--shadow-xl);
+            z-index: 10;
+            animation: pulse-border 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-border {
+            0%, 100% { box-shadow: 0 0 0 4px rgba(255, 193, 7, 0.2), var(--shadow-xl); }
+            50% { box-shadow: 0 0 0 8px rgba(255, 193, 7, 0.1), var(--shadow-xl); }
+        }
+
+        .entity.source {
+            border-color: #28a745;
+            border-width: 3px;
+            box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.2), var(--shadow-xl);
+        }
+
+        .entity.target {
+            border-color: #007bff;
+            border-width: 3px;
+            box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.2), var(--shadow-xl);
+        }
+
+        .entity-header {
+            padding: 20px 24px;
+            color: white;
+            font-weight: 700;
+            font-size: 1.15em;
+            border-radius: 14px 14px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .entity-header::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .entity:hover .entity-header::after {
+            opacity: 1;
+        }
+
+        .entity-icon {
+            font-size: 1.4em;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+
+        .entity-body {
+            padding: 20px 24px;
+            max-height: 450px;
+            overflow-y: auto;
+        }
+
+        .entity-body::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .entity-body::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .entity-body::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
+
+        .entity-body::-webkit-scrollbar-thumb:hover {
+            background: #764ba2;
+        }
+
+        .attribute {
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.95em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .attribute:hover {
+            background: #f8f9fa;
+            margin: 0 -24px;
+            padding-left: 24px;
+            padding-right: 24px;
+            border-radius: 8px;
+        }
+
+        .attribute:last-child {
+            border-bottom: none;
+        }
+
+        .attr-name {
+            font-weight: 600;
+            color: #212529;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .attr-type {
+            color: #6c757d;
+            font-size: 0.9em;
+            font-weight: 500;
+            font-family: 'Courier New', monospace;
+        }
+
+        .attr-constraint {
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.75em;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .pk {
+            color: white;
+            background: linear-gradient(135deg, #dc3545, #c82333);
+        }
+        .fk {
+            color: white;
+            background: linear-gradient(135deg, #0d6efd, #0a58ca);
+        }
+        .uk {
+            color: white;
+            background: linear-gradient(135deg, #198754, #146c43);
+        }
+
+        /* Color schemes for different entity types */
+        .core-entity .entity-header { background: var(--core-color); }
+        .transaction-entity .entity-header { background: var(--transaction-color); }
+        .product-entity .entity-header { background: var(--product-color); }
+        .system-entity .entity-header { background: var(--system-color); }
+        .expiry-entity .entity-header { background: var(--expiry-color); }
+
+        .relationships-panel {
+            margin-top: 50px;
+            padding: 40px;
+            background: linear-gradient(to bottom, #f8f9fa, #ffffff);
+            border-top: 1px solid #e9ecef;
+        }
+
+        .relationships-panel h3 {
+            color: #212529;
+            margin-bottom: 30px;
+            font-size: 1.5em;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .relationship-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+            gap: 18px;
+        }
+
+        .relationship-item {
+            padding: 18px 24px;
+            background: white;
+            border-radius: 12px;
+            border-left: 5px solid #667eea;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .relationship-item:hover {
+            background: linear-gradient(to right, #f0f4ff, #ffffff);
+            transform: translateX(8px);
+            box-shadow: var(--shadow-md);
+            border-left-color: #764ba2;
+        }
+
+        .relationship-type {
+            font-weight: 700;
+            color: #667eea;
+            min-width: 200px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            letter-spacing: 0.5px;
+        }
+
+        .relationship-desc {
+            color: #495057;
+            flex: 1;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .entities {
+                grid-template-columns: 1fr;
+            }
+
+            .entity {
+                width: 100%;
+            }
+
+            .relationship-list {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .controls select,
+            .controls button {
+                width: 100%;
+            }
+        }
+
+        /* Smooth scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Loading animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .entity {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .entity:nth-child(1) { animation-delay: 0.1s; }
+        .entity:nth-child(2) { animation-delay: 0.2s; }
+        .entity:nth-child(3) { animation-delay: 0.3s; }
+        .entity:nth-child(4) { animation-delay: 0.4s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏪 POS System Database Schema</h1>
+            <p>Interactive Entity Relationship Diagram with Visual Connections</p>
+        </div>
+
+        <div class="controls">
+            <label>View Mode:</label>
+            <select id="viewMode" onchange="changeViewMode()">
+                <option value="diagram">Diagram View</option>
+                <option value="list">List View</option>
+            </select>
+
+            <label>Show Relationships:</label>
+            <select id="relationshipFilter" onchange="filterRelationships()">
+                <option value="all">All Relationships</option>
+                <option value="oneToMany">One-to-Many</option>
+                <option value="manyToOne">Many-to-One</option>
+                <option value="oneToOne">One-to-One</option>
+            </select>
+
+            <button onclick="toggleRelationships()">🔗 Toggle Arrows</button>
+            <button onclick="resetView()">🔄 Reset View</button>
+        </div>
+
+        <div class="legend">
+            <h4>📊 Relationship Notation:</h4>
+            <div class="legend-grid">
+                <div class="legend-item">
+                    <span class="legend-arrow">||——o{</span>
+                    <span>One-to-Many (1:N)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-arrow">}o——||</span>
+                    <span>Many-to-One (N:1)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-arrow">||——||</span>
+                    <span>One-to-One (1:1)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box" style="background: var(--core-color);"></div>
+                    <span>Core Entities</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box" style="background: var(--transaction-color);"></div>
+                    <span>Transaction</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box" style="background: var(--product-color);"></div>
+                    <span>Product</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box" style="background: var(--system-color);"></div>
+                    <span>System</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box" style="background: var(--expiry-color);"></div>
+                    <span>Expiry Management</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="diagram-wrapper" id="diagramView">
+            <div class="canvas-container" id="canvasContainer">
+                <canvas id="relationshipCanvas"></canvas>
+                <div class="entities-layer" id="entitiesLayer">
+                    <!-- Core Entities -->
+                    <div class="entity-group">
+                        <h2 class="group-title" style="border-color: #667eea;">📋 Core Entities</h2>
+                        <div class="entities">
+                            <div class="entity core-entity" id="entity-Staff" data-entity="Staff">
+                                <div class="entity-header">
+                                    <span>Staff</span>
+                                    <span class="entity-icon">👤</span>
+                                </div>
+                                <div class="entity-body">
+                                    <div class="attribute">
+                                        <span class="attr-name">staff_id <span class="attr-constraint pk">PK</span></span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">username <span class="attr-constraint uk">UK</span></span>
+                                        <span class="attr-type">VARCHAR(50)</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">password_hash</span>
+                                        <span class="attr-type">VARCHAR(255)</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">email</span>
+                                        <span class="attr-type">VARCHAR(100)</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">full_name</span>
+                                        <span class="attr-type">VARCHAR(100)</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">role</span>
+                                        <span class="attr-type">ENUM</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">status</span>
+                                        <span class="attr-type">ENUM</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="entity core-entity" id="entity-Category" data-entity="Category">
+                                <div class="entity-header">
+                                    <span>Category</span>
+                                    <span class="entity-icon">📁</span>
+                                </div>
+                                <div class="entity-body">
+                                    <div class="attribute">
+                                        <span class="attr-name">category_id <span class="attr-constraint pk">PK</span></span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">name <span class="attr-constraint uk">UK</span></span>
+                                        <span class="attr-type">VARCHAR(100)</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">description</span>
+                                        <span class="attr-type">TEXT</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">parent_category_id <span class="attr-constraint fk">FK</span></span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="entity core-entity" id="entity-Supplier" data-entity="Supplier">
+                                <div class="entity-header">
+                                    <span>Supplier</span>
+                                    <span class="entity-icon">🏭</span>
+                                </div>
+                                <div class="entity-body">
+                                    <div class="attribute">
+                                        <span class="attr-name">supplier_id <span class="attr-constraint pk">PK</span></span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">name <span class="attr-constraint uk">UK</span></span>
+                                        <span class="attr-type">VARCHAR(100)</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">contact_person</span>
+                                        <span class="attr-type">VARCHAR(100)</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">email</span>
+                                        <span class="attr-type">VARCHAR(100)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product Entities -->
+                    <div class="entity-group">
+                        <h2 class="group-title" style="border-color: #ee0979;">📦 Product Entities</h2>
+                        <div class="entities">
+                            <div class="entity product-entity" id="entity-Product" data-entity="Product">
+                                <div class="entity-header">
+                                    <span>Product</span>
+                                    <span class="entity-icon">📦</span>
+                                </div>
+                                <div class="entity-body">
+                                    <div class="attribute">
+                                        <span class="attr-name">product_id <span class="attr-constraint pk">PK</span></span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">sku <span class="attr-constraint uk">UK</span></span>
+                                        <span class="attr-type">VARCHAR(50)</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">barcode <span class="attr-constraint uk">UK</span></span>
+                                        <span class="attr-type">VARCHAR(50)</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">name</span>
+                                        <span class="attr-type">VARCHAR(200)</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">price</span>
+                                        <span class="attr-type">DECIMAL(10,2)</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">category_id <span class="attr-constraint fk">FK</span></span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">supplier_id <span class="attr-constraint fk">FK</span></span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="entity product-entity" id="entity-ProductVariant" data-entity="ProductVariant">
+                                <div class="entity-header">
+                                    <span>ProductVariant</span>
+                                    <span class="entity-icon">🎨</span>
+                                </div>
+                                <div class="entity-body">
+                                    <div class="attribute">
+                                        <span class="attr-name">variant_id <span class="attr-constraint pk">PK</span></span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">product_id <span class="attr-constraint fk">FK</span></span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">variant_type</span>
+                                        <span class="attr-type">VARCHAR(50)</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">variant_value</span>
+                                        <span class="attr-type">VARCHAR(100)</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="entity product-entity" id="entity-ProductImage" data-entity="ProductImage">
+                                <div class="entity-header">
+                                    <span>ProductImage</span>
+                                    <span class="entity-icon">🖼️</span>
+                                </div>
+                                <div class="entity-body">
+                                    <div class="attribute">
+                                        <span class="attr-name">image_id <span class="attr-constraint pk">PK</span></span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">product_id <span class="attr-constraint fk">FK</span></span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">image_url</span>
+                                        <span class="attr-type">VARCHAR(500)</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="entity product-entity" id="entity-Inventory" data-entity="Inventory">
+                                <div class="entity-header">
+                                    <span>Inventory</span>
+                                    <span class="entity-icon">📊</span>
+                                </div>
+                                <div class="entity-body">
+                                    <div class="attribute">
+                                        <span class="attr-name">inventory_id <span class="attr-constraint pk">PK</span></span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">product_id <span class="attr-constraint fk">FK</span></span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">quantity</span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">expiry_date</span>
+                                        <span class="attr-type">DATE</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">batch_number</span>
+                                        <span class="attr-type">VARCHAR(50)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Transaction Entities -->
+                    <div class="entity-group">
+                        <h2 class="group-title" style="border-color: #11998e;">💳 Transaction Entities</h2>
+                        <div class="entities">
+                            <div class="entity transaction-entity" id="entity-Transaction" data-entity="Transaction">
+                                <div class="entity-header">
+                                    <span>Transaction</span>
+                                    <span class="entity-icon">💳</span>
+                                </div>
+                                <div class="entity-body">
+                                    <div class="attribute">
+                                        <span class="attr-name">transaction_id <span class="attr-constraint pk">PK</span></span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">staff_id <span class="attr-constraint fk">FK</span></span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">transaction_number <span class="attr-constraint uk">UK</span></span>
+                                        <span class="attr-type">VARCHAR(50)</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">total_amount</span>
+                                        <span class="attr-type">DECIMAL(10,2)</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">status</span>
+                                        <span class="attr-type">ENUM</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="entity transaction-entity" id="entity-TransactionItem" data-entity="TransactionItem">
+                                <div class="entity-header">
+                                    <span>TransactionItem</span>
+                                    <span class="entity-icon">🛒</span>
+                                </div>
+                                <div class="entity-body">
+                                    <div class="attribute">
+                                        <span class="attr-name">item_id <span class="attr-constraint pk">PK</span></span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">transaction_id <span class="attr-constraint fk">FK</span></span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">product_id <span class="attr-constraint fk">FK</span></span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">quantity</span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="entity transaction-entity" id="entity-Payment" data-entity="Payment">
+                                <div class="entity-header">
+                                    <span>Payment</span>
+                                    <span class="entity-icon">💰</span>
+                                </div>
+                                <div class="entity-body">
+                                    <div class="attribute">
+                                        <span class="attr-name">payment_id <span class="attr-constraint pk">PK</span></span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">transaction_id <span class="attr-constraint fk">FK</span></span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">payment_method_id <span class="attr-constraint fk">FK</span></span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">amount</span>
+                                        <span class="attr-type">DECIMAL(10,2)</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="entity transaction-entity" id="entity-PaymentMethod" data-entity="PaymentMethod">
+                                <div class="entity-header">
+                                    <span>PaymentMethod</span>
+                                    <span class="entity-icon">💳</span>
+                                </div>
+                                <div class="entity-body">
+                                    <div class="attribute">
+                                        <span class="attr-name">payment_method_id <span class="attr-constraint pk">PK</span></span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">method_name</span>
+                                        <span class="attr-type">VARCHAR(50)</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">provider_name</span>
+                                        <span class="attr-type">VARCHAR(50)</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="entity transaction-entity" id="entity-Receipt" data-entity="Receipt">
+                                <div class="entity-header">
+                                    <span>Receipt</span>
+                                    <span class="entity-icon">🧾</span>
+                                </div>
+                                <div class="entity-body">
+                                    <div class="attribute">
+                                        <span class="attr-name">receipt_id <span class="attr-constraint pk">PK</span></span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">transaction_id <span class="attr-constraint fk">FK</span></span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">receipt_number <span class="attr-constraint uk">UK</span></span>
+                                        <span class="attr-type">VARCHAR(50)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Expiry Management -->
+                    <div class="entity-group">
+                        <h2 class="group-title" style="border-color: #f2994a;">⏰ Expiry Management</h2>
+                        <div class="entities">
+                            <div class="entity expiry-entity" id="entity-DiscountRule" data-entity="DiscountRule">
+                                <div class="entity-header">
+                                    <span>DiscountRule</span>
+                                    <span class="entity-icon">🏷️</span>
+                                </div>
+                                <div class="entity-body">
+                                    <div class="attribute">
+                                        <span class="attr-name">rule_id <span class="attr-constraint pk">PK</span></span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">product_id <span class="attr-constraint fk">FK</span></span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">days_before_expiry</span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">discount_percentage</span>
+                                        <span class="attr-type">DECIMAL(5,2)</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="entity expiry-entity" id="entity-ExpiryAlert" data-entity="ExpiryAlert">
+                                <div class="entity-header">
+                                    <span>ExpiryAlert</span>
+                                    <span class="entity-icon">⚠️</span>
+                                </div>
+                                <div class="entity-body">
+                                    <div class="attribute">
+                                        <span class="attr-name">alert_id <span class="attr-constraint pk">PK</span></span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">inventory_id <span class="attr-constraint fk">FK</span></span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">alert_type</span>
+                                        <span class="attr-type">ENUM</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- System Management -->
+                    <div class="entity-group">
+                        <h2 class="group-title" style="border-color: #2193b0;">⚙️ System Management</h2>
+                        <div class="entities">
+                            <div class="entity system-entity" id="entity-Store" data-entity="Store">
+                                <div class="entity-header">
+                                    <span>Store</span>
+                                    <span class="entity-icon">🏪</span>
+                                </div>
+                                <div class="entity-body">
+                                    <div class="attribute">
+                                        <span class="attr-name">store_id <span class="attr-constraint pk">PK</span></span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">store_name</span>
+                                        <span class="attr-type">VARCHAR(100)</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="entity system-entity" id="entity-SystemSettings" data-entity="SystemSettings">
+                                <div class="entity-header">
+                                    <span>SystemSettings</span>
+                                    <span class="entity-icon">⚙️</span>
+                                </div>
+                                <div class="entity-body">
+                                    <div class="attribute">
+                                        <span class="attr-name">settings_id <span class="attr-constraint pk">PK</span></span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">store_id <span class="attr-constraint fk">FK</span></span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="entity system-entity" id="entity-ActivityLog" data-entity="ActivityLog">
+                                <div class="entity-header">
+                                    <span>ActivityLog</span>
+                                    <span class="entity-icon">📝</span>
+                                </div>
+                                <div class="entity-body">
+                                    <div class="attribute">
+                                        <span class="attr-name">log_id <span class="attr-constraint pk">PK</span></span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">staff_id <span class="attr-constraint fk">FK</span></span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="entity system-entity" id="entity-Shift" data-entity="Shift">
+                                <div class="entity-header">
+                                    <span>Shift</span>
+                                    <span class="entity-icon">🕐</span>
+                                </div>
+                                <div class="entity-body">
+                                    <div class="attribute">
+                                        <span class="attr-name">shift_id <span class="attr-constraint pk">PK</span></span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                    <div class="attribute">
+                                        <span class="attr-name">staff_id <span class="attr-constraint fk">FK</span></span>
+                                        <span class="attr-type">INTEGER</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Relationships Panel -->
+        <div class="relationships-panel">
+            <h3>🔗 Database Relationships</h3>
+            <div class="relationship-list" id="relationshipList">
+                <div class="relationship-item" data-type="oneToMany" onclick="showRelationship('Staff', 'Transaction')">
+                    <span class="relationship-type">Staff ||——o{ Transaction</span>
+                    <span class="relationship-desc">One staff processes many transactions</span>
+                </div>
+                <div class="relationship-item" data-type="oneToMany" onclick="showRelationship('Staff', 'ActivityLog')">
+                    <span class="relationship-type">Staff ||——o{ ActivityLog</span>
+                    <span class="relationship-desc">One staff generates many logs</span>
+                </div>
+                <div class="relationship-item" data-type="oneToMany" onclick="showRelationship('Staff', 'Shift')">
+                    <span class="relationship-type">Staff ||——o{ Shift</span>
+                    <span class="relationship-desc">One staff has many shifts</span>
+                </div>
+                <div class="relationship-item" data-type="oneToMany" onclick="showRelationship('Product', 'ProductVariant')">
+                    <span class="relationship-type">Product ||——o{ ProductVariant</span>
+                    <span class="relationship-desc">One product has many variants</span>
+                </div>
+                <div class="relationship-item" data-type="oneToMany" onclick="showRelationship('Product', 'ProductImage')">
+                    <span class="relationship-type">Product ||——o{ ProductImage</span>
+                    <span class="relationship-desc">One product has many images</span>
+                </div>
+                <div class="relationship-item" data-type="manyToOne" onclick="showRelationship('Product', 'Category')">
+                    <span class="relationship-type">Product }o——|| Category</span>
+                    <span class="relationship-desc">Many products belong to one category</span>
+                </div>
+                <div class="relationship-item" data-type="manyToOne" onclick="showRelationship('Product', 'Supplier')">
+                    <span class="relationship-type">Product }o——|| Supplier</span>
+                    <span class="relationship-desc">Many products from one supplier</span>
+                </div>
+                <div class="relationship-item" data-type="oneToMany" onclick="showRelationship('Product', 'Inventory')">
+                    <span class="relationship-type">Product ||——o{ Inventory</span>
+                    <span class="relationship-desc">One product has many inventory batches</span>
+                </div>
+                <div class="relationship-item" data-type="oneToMany" onclick="showRelationship('Product', 'DiscountRule')">
+                    <span class="relationship-type">Product ||——o{ DiscountRule</span>
+                    <span class="relationship-desc">One product has many discount rules</span>
+                </div>
+                <div class="relationship-item" data-type="oneToMany" onclick="showRelationship('Inventory', 'ExpiryAlert')">
+                    <span class="relationship-type">Inventory ||——o{ ExpiryAlert</span>
+                    <span class="relationship-desc">One inventory triggers many alerts</span>
+                </div>
+                <div class="relationship-item" data-type="oneToMany" onclick="showRelationship('Transaction', 'TransactionItem')">
+                    <span class="relationship-type">Transaction ||——o{ TransactionItem</span>
+                    <span class="relationship-desc">One transaction contains many items</span>
+                </div>
+                <div class="relationship-item" data-type="oneToOne" onclick="showRelationship('Transaction', 'Receipt')">
+                    <span class="relationship-type">Transaction ||——|| Receipt</span>
+                    <span class="relationship-desc">One transaction generates one receipt</span>
+                </div>
+                <div class="relationship-item" data-type="oneToMany" onclick="showRelationship('Transaction', 'Payment')">
+                    <span class="relationship-type">Transaction ||——o{ Payment</span>
+                    <span class="relationship-desc">One transaction has many payments</span>
+                </div>
+                <div class="relationship-item" data-type="manyToOne" onclick="showRelationship('Payment', 'PaymentMethod')">
+                    <span class="relationship-type">Payment }o——|| PaymentMethod</span>
+                    <span class="relationship-desc">Many payments use one method</span>
+                </div>
+                <div class="relationship-item" data-type="oneToOne" onclick="showRelationship('Store', 'SystemSettings')">
+                    <span class="relationship-type">Store ||——|| SystemSettings</span>
+                    <span class="relationship-desc">One store has one settings config</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let showArrows = true;
+        let currentFilter = 'all';
+
+        const relationships = [
+            { from: 'Staff', to: 'Transaction', type: 'oneToMany', label: '1:N' },
+            { from: 'Staff', to: 'ActivityLog', type: 'oneToMany', label: '1:N' },
+            { from: 'Staff', to: 'Shift', type: 'oneToMany', label: '1:N' },
+            { from: 'Product', to: 'ProductVariant', type: 'oneToMany', label: '1:N' },
+            { from: 'Product', to: 'ProductImage', type: 'oneToMany', label: '1:N' },
+            { from: 'Product', to: 'Category', type: 'manyToOne', label: 'N:1' },
+            { from: 'Product', to: 'Supplier', type: 'manyToOne', label: 'N:1' },
+            { from: 'Product', to: 'Inventory', type: 'oneToMany', label: '1:N' },
+            { from: 'Product', to: 'DiscountRule', type: 'oneToMany', label: '1:N' },
+            { from: 'Product', to: 'TransactionItem', type: 'oneToMany', label: '1:N' },
+            { from: 'Inventory', to: 'ExpiryAlert', type: 'oneToMany', label: '1:N' },
+            { from: 'Transaction', to: 'TransactionItem', type: 'oneToMany', label: '1:N' },
+            { from: 'Transaction', to: 'Receipt', type: 'oneToOne', label: '1:1' },
+            { from: 'Transaction', to: 'Payment', type: 'oneToMany', label: '1:N' },
+            { from: 'Payment', to: 'PaymentMethod', type: 'manyToOne', label: 'N:1' },
+            { from: 'Store', to: 'SystemSettings', type: 'oneToOne', label: '1:1' },
+        ];
+
+        function initCanvas() {
+            const canvas = document.getElementById('relationshipCanvas');
+            const container = document.getElementById('canvasContainer');
+
+            canvas.width = container.offsetWidth;
+            canvas.height = container.offsetHeight;
+
+            if (showArrows) {
+                drawRelationships();
+            }
+        }
+
+        function drawRelationships() {
+            const canvas = document.getElementById('relationshipCanvas');
+            const ctx = canvas.getContext('2d');
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            relationships.forEach(rel => {
+                if (currentFilter !== 'all' && rel.type !== currentFilter) return;
+
+                const fromEl = document.getElementById(`entity-${rel.from}`);
+                const toEl = document.getElementById(`entity-${rel.to}`);
+
+                if (!fromEl || !toEl) return;
+
+                const fromRect = fromEl.getBoundingClientRect();
+                const toRect = toEl.getBoundingClientRect();
+                const containerRect = document.getElementById('canvasContainer').getBoundingClientRect();
+
+                const fromX = fromRect.left - containerRect.left + fromRect.width / 2;
+                const fromY = fromRect.top - containerRect.top + fromRect.height / 2;
+                const toX = toRect.left - containerRect.left + toRect.width / 2;
+                const toY = toRect.top - containerRect.top + toRect.height / 2;
+
+                drawArrow(ctx, fromX, fromY, toX, toY, rel.type, rel.label);
+            });
+        }
+
+        function drawArrow(ctx, fromX, fromY, toX, toY, type, label) {
+            const headlen = 18;
+            const dx = toX - fromX;
+            const dy = toY - fromY;
+            const angle = Math.atan2(dy, dx);
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            // Adjust start and end points to avoid overlapping with entity borders
+            const offset = 20;
+            const adjustedFromX = fromX + (dx / distance) * offset;
+            const adjustedFromY = fromY + (dy / distance) * offset;
+            const adjustedToX = toX - (dx / distance) * offset;
+            const adjustedToY = toY - (dy / distance) * offset;
+
+            // Color based on type
+            let color = '#667eea';
+            if (type === 'oneToMany') color = '#28a745';
+            if (type === 'manyToOne') color = '#dc3545';
+            if (type === 'oneToOne') color = '#ffc107';
+
+            ctx.strokeStyle = color;
+            ctx.fillStyle = color;
+            ctx.lineWidth = 2.5;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            // Draw curved line for better visual appeal
+            const midX = (adjustedFromX + adjustedToX) / 2;
+            const midY = (adjustedFromY + adjustedToY) / 2;
+            const curvature = 30;
+            const cpX = midX + Math.cos(angle + Math.PI / 2) * curvature;
+            const cpY = midY + Math.sin(angle + Math.PI / 2) * curvature;
+
+            ctx.beginPath();
+            ctx.moveTo(adjustedFromX, adjustedFromY);
+            ctx.quadraticCurveTo(cpX, cpY, adjustedToX, adjustedToY);
+            ctx.stroke();
+
+            // Draw arrowhead based on type
+            const finalAngle = Math.atan2(adjustedToY - cpY, adjustedToX - cpX);
+
+            if (type === 'oneToMany') {
+                // Draw crow's foot (many side)
+                ctx.beginPath();
+                ctx.moveTo(adjustedToX, adjustedToY);
+                ctx.lineTo(adjustedToX - headlen * Math.cos(finalAngle - Math.PI / 6), adjustedToY - headlen * Math.sin(finalAngle - Math.PI / 6));
+                ctx.moveTo(adjustedToX, adjustedToY);
+                ctx.lineTo(adjustedToX - headlen * Math.cos(finalAngle + Math.PI / 6), adjustedToY - headlen * Math.sin(finalAngle + Math.PI / 6));
+                ctx.moveTo(adjustedToX, adjustedToY);
+                ctx.lineTo(adjustedToX - headlen * Math.cos(finalAngle), adjustedToY - headlen * Math.sin(finalAngle));
+                ctx.stroke();
+            } else if (type === 'manyToOne') {
+                // Draw crow's foot on from side
+                ctx.beginPath();
+                ctx.moveTo(adjustedFromX, adjustedFromY);
+                ctx.lineTo(adjustedFromX + headlen * Math.cos(finalAngle - Math.PI / 6 + Math.PI), adjustedFromY + headlen * Math.sin(finalAngle - Math.PI / 6 + Math.PI));
+                ctx.moveTo(adjustedFromX, adjustedFromY);
+                ctx.lineTo(adjustedFromX + headlen * Math.cos(finalAngle + Math.PI / 6 + Math.PI), adjustedFromY + headlen * Math.sin(finalAngle + Math.PI / 6 + Math.PI));
+                ctx.moveTo(adjustedFromX, adjustedFromY);
+                ctx.lineTo(adjustedFromX + headlen * Math.cos(finalAngle + Math.PI), adjustedFromY + headlen * Math.sin(finalAngle + Math.PI));
+                ctx.stroke();
+            } else if (type === 'oneToOne') {
+                // Draw simple line ends
+                ctx.beginPath();
+                ctx.moveTo(adjustedToX - headlen * Math.cos(finalAngle - Math.PI / 2), adjustedToY - headlen * Math.sin(finalAngle - Math.PI / 2));
+                ctx.lineTo(adjustedToX - headlen * Math.cos(finalAngle + Math.PI / 2), adjustedToY - headlen * Math.sin(finalAngle + Math.PI / 2));
+                ctx.stroke();
+            }
+
+            // Draw label with better styling
+            const labelX = cpX;
+            const labelY = cpY;
+            ctx.fillStyle = 'white';
+            ctx.fillRect(labelX - 25, labelY - 12, 50, 24);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.strokeRect(labelX - 25, labelY - 12, 50, 24);
+            ctx.fillStyle = color;
+            ctx.font = 'bold 13px Inter';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(label, labelX, labelY);
+        }
+
+        function toggleRelationships() {
+            showArrows = !showArrows;
+            const canvas = document.getElementById('relationshipCanvas');
+            const ctx = canvas.getContext('2d');
+
+            if (showArrows) {
+                drawRelationships();
+            } else {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        function filterRelationships() {
+            currentFilter = document.getElementById('relationshipFilter').value;
+
+            const items = document.querySelectorAll('.relationship-item');
+            items.forEach(item => {
+                const type = item.getAttribute('data-type');
+                if (currentFilter === 'all' || type === currentFilter) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            if (showArrows) {
+                drawRelationships();
+            }
+        }
+
+        function showRelationship(from, to) {
+            // Clear all highlights
+            document.querySelectorAll('.entity').forEach(e => {
+                e.classList.remove('highlighted', 'source', 'target');
+            });
+
+            // Highlight the entities
+            const fromEl = document.getElementById(`entity-${from}`);
+            const toEl = document.getElementById(`entity-${to}`);
+
+            if (fromEl) {
+                fromEl.classList.add('source');
+                setTimeout(() => {
+                    fromEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 100);
+            }
+            if (toEl) {
+                toEl.classList.add('target');
+            }
+        }
+
+        function resetView() {
+            document.querySelectorAll('.entity').forEach(e => {
+                e.classList.remove('highlighted', 'source', 'target');
+            });
+            document.getElementById('relationshipFilter').value = 'all';
+            currentFilter = 'all';
+            filterRelationships();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function changeViewMode() {
+            const mode = document.getElementById('viewMode').value;
+            // This could be extended to show different layouts
+            console.log('View mode: ' + mode);
+        }
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                initCanvas();
+            }, 500);
+        });
+
+        // Redraw on resize
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                if (showArrows) {
+                    initCanvas();
+                }
+            }, 250);
+        });
+
+        // Redraw on scroll
+        let scrollTimeout;
+        window.addEventListener('scroll', () => {
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                if (showArrows) {
+                    drawRelationships();
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>
