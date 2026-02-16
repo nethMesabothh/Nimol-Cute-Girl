@@ -78,7 +78,8 @@ flowchart TD
     CheckDaysLeft -->|"<= 3 days"| ApplyDiscount2[Apply 10% Auto Discount]
     CheckDaysLeft -->|"> 3 days"| NoDiscount[No Discount]
 
-    ApplyDiscount1 --> FIFOCheck[Check FIFO - Use Oldest Stock First]    ApplyDiscount2 --> FIFOCheck
+    ApplyDiscount1 --> FIFOCheck[Check FIFO - Use Oldest Stock First]
+    ApplyDiscount2 --> FIFOCheck
     NoDiscount --> FIFOCheck
 
     FIFOCheck --> AddToCart[Add to Cart with Expiry Info]
